@@ -1,0 +1,143 @@
+{
+  "name": "GenAIChatbot-WEB",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Kamu adalah asisten virtual toko perangkat audio SonicStore. Tugasmu adalah membantu pelanggan menjawab pertanyaan seputar jenis produk audio, spesifikasi, dan harganya dengan cara mengambil data dari Google Sheets menggunakan tool yang disediakan. Jawab dengan ramah, informatif, dan ringkas (di bawah 200 kata). Jangan mengarang harga di luar data sheet."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "bd2f6d28-2bf6-4603-a3dc-f0bcacbd09d1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        176
+      ],
+      "id": "aebe1ac5-7ad3-4940-b212-835e11a2250f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hADXDx5Ev3fXfITc",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1anLoIyXhurfTtwqww3ZbykkJSAUOtWhKgX5hh2yYyzI",
+          "mode": "list",
+          "cachedResultName": "Data Audio",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1anLoIyXhurfTtwqww3ZbykkJSAUOtWhKgX5hh2yYyzI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1anLoIyXhurfTtwqww3ZbykkJSAUOtWhKgX5hh2yYyzI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        224
+      ],
+      "id": "f22d51ee-5cbf-4c25-bcec-92fb4a39f4d2",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xuxSZCWjDHpSlaDz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Halo! Selamat datang di SonicStore 🎵 Tanyakan apa saja seputar produk audio, spesifikasi, atau harganya di sini, dan saya akan carikan informasinya untukmu!",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ce032e98-097b-4dcc-a656-b7c09b448bdb",
+      "name": "When chat message received",
+      "webhookId": "27003d24-9d22-4381-ad72-96d52351783e"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "46498147-9647-4262-9176-3773dfe9e709",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "76cde31ebacdb8e6a47b0a951d31b5cba44c43f090cad373209121e992892db5"
+  },
+  "nodeGroups": [],
+  "id": "7WJx75XfguStt6Wl",
+  "tags": []
+}

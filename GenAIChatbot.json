@@ -1,0 +1,205 @@
+{
+  "name": "GenAIChatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "Kamu adalah asisten virtual toko perangkat audio SonicStore. Tugasmu adalah membantu pelanggan menjawab pertanyaan seputar jenis produk audio, spesifikasi, dan harganya dengan cara mengambil data dari Google Sheets menggunakan tool yang disediakan. Jawab dengan ramah, informatif, dan ringkas (di bawah 200 kata). Jangan mengarang harga di luar data sheet."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "db764202-35f0-494a-a9ec-391624ca3e60",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        128,
+        176
+      ],
+      "id": "98d17039-1582-49cf-8a5b-803a5f2dbebc",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "hADXDx5Ev3fXfITc",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "5b790a6a-9c88-42e1-ae39-280d14e6f795",
+      "name": "Send a text message",
+      "webhookId": "68e40140-aa7f-46eb-b057-3f80ddc8d5a1",
+      "credentials": {
+        "telegramApi": {
+          "id": "SstaMr5el3p5kKe0",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1anLoIyXhurfTtwqww3ZbykkJSAUOtWhKgX5hh2yYyzI",
+          "mode": "list",
+          "cachedResultName": "Data Audio",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1anLoIyXhurfTtwqww3ZbykkJSAUOtWhKgX5hh2yYyzI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1anLoIyXhurfTtwqww3ZbykkJSAUOtWhKgX5hh2yYyzI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        224
+      ],
+      "id": "87df95d4-cb5f-4b48-b0c2-9af73925fe6b",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xuxSZCWjDHpSlaDz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.text }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        208
+      ],
+      "id": "2307cfd5-1d57-4fcc-969b-33631a767ad2",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "442d6c3a-8cf0-41b4-8772-2a8edca0c64a",
+      "name": "Telegram Trigger",
+      "webhookId": "c0263b9b-7b9e-4046-885a-611674e9b88f",
+      "credentials": {
+        "telegramApi": {
+          "id": "SstaMr5el3p5kKe0",
+          "name": "Telegram account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e8059bdc-9178-42a0-ae3e-911ed1329a82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "76cde31ebacdb8e6a47b0a951d31b5cba44c43f090cad373209121e992892db5"
+  },
+  "nodeGroups": [],
+  "id": "YKc0GfkDVskDZowV",
+  "tags": []
+}
